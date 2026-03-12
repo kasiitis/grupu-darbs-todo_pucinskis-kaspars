@@ -24,11 +24,87 @@ Izmantotais compiler: visual-studio
             <div class="card" id="card">
                 <h3>Mani darbi</h3>
                 <div class="input-group">
+                    
+                        <select id="priority" class="form-select">
+                        <option value="low">Zema</option>
+                        <option value="medium" selected>Vidēja</option>
+                        <option value="high">Svarīgi</option>
+                  
                     <input class="form-control" type="text"  placeholder="Ieraksti darbu..." id="darbs">
                     <button class="btn btn-primary" type="submit" onclick="saraksts()">Pievienot</button>
                 </div>
                 <ul id="task-list" class="list-group"></ul>
             </div>
         </div>
+        <script>
+            let tasks = [];
+
+        function saraksts() {
+            const input = document.getElementById("darbs");
+            const priority = document.getElementById("priority") ? document.getElementById("priority").value : "low";
+            const text = input.value.trim();
+            if (!text) return;
+        
+            const task = { text, completed: false, priority };
+            tasks.push(task);
+            input.value = "";
+        
+            saveData();
+            renderTasks();
+        }
+        
+        function renderTasks() {
+            const list = document.getElementById("task-list");
+            list.innerHTML = "";
+        
+            tasks.forEach((task, index) => {
+                const li = document.createElement("li");
+                li.classList.add("d-flex", "justify-content-between", "align-items-center", "list-group-item");
+        
+                const badge = document.createElement("span");
+                badge.classList.add("badge", "me-2");
+                if (task.priority === "high") badge.classList.add("bg-danger");
+                else if (task.priority === "medium") badge.classList.add("bg-warning", "text-dark");
+                else badge.classList.add("bg-secondary");
+                badge.textContent = task.priority === "high" ? "SVARĪGI" : task.priority === "medium" ? "Vidēja" : "Zema";
+        
+                const span = document.createElement("span");
+                span.textContent = task.text;
+                if (task.completed) span.classList.add("text-decoration-line-through");
+        
+                span.onclick = () => {
+                    tasks[index].completed = !tasks[index].completed;
+                    saveData();
+                    renderTasks();
+                };
+        
+                const notirit = document.createElement("button");
+                notirit.innerText = "Dzēst";
+                notirit.classList.add("btn", "btn-danger");
+                notirit.onclick = () => {
+                    tasks.splice(index, 1);
+                    saveData();
+                    renderTasks();
+                };
+        
+                li.appendChild(badge);
+                li.appendChild(span);
+                li.appendChild(notirit);
+                list.appendChild(li);
+            });
+        }
+        
+        function saveData() {
+            localStorage.setItem("todoTasks", JSON.stringify(tasks));
+        }
+        
+        function loadData() {
+            const data = localStorage.getItem("todoTasks");
+            if (data) tasks = JSON.parse(data);
+            renderTasks();
+        }
+        
+        window.onload = loadData;
+        </script>
     </body>
 </html>
