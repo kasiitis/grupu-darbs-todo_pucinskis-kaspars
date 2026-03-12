@@ -20,11 +20,20 @@ Izmantotais compiler: visual-studio
             .row1 {
               padding-bottom: 10px;
             }
+            .row2 {
+              padding-bottom: 10px;
+            }
+            .btnnotirit{
+              background: none;
+              border: none;
+              color: red;
+              text-decoration: underline;
+            }
         </style>
     </head>
     <body>
         <div class="container mb-3">
-            <div class="card" id="card">
+            <div class="card shadow p-3 mb-5 bg-body-tertiary" id="card">
                 <h3>Mani darbi</h3>
                 <div class="input-group row1">
                     
@@ -37,13 +46,24 @@ Izmantotais compiler: visual-studio
                     <input class="form-control" type="text"  placeholder="Ieraksti darbu..." id="darbs">
                     <button class="btn btn-primary" type="submit" onclick="saraksts()">Pievienot</button>
                 </div>
-                <div class="input-group">
-                    <input type="text" id="mySearch" onkeyup="Search()" placeholder="Meklet uzdevumu...">
-                    <button type="button" class="btn btn-outline-secondary">Visi</button>
-                    <button type="button" class="btn btn-outline-secondary">Aktivie</button>
-                    <button type="button" class="btn btn-outline-secondary">Pabeigtie</button>
+                <div class="row row2" role="group">
+                  <div class="col-6">
+                    <input type="text" class="form-control" id="mySearch" onkeyup="Search()" placeholder="Meklet uzdevumu...">
+                  </div>
+                  <div class="col-6 btn-group">
+                    <input type="radio" name="btnradio" class="btn-check" id="btnradio1" autocomplete="off" onclick="setFilter('all')"/>
+                    <label class="btn btn-outline-secondary" for="btnradio1">Visi</label>
+                    <input type="radio" name="btnradio" class="btn-check" id="btnradio2" autocomplete="off" onclick="setFilter('active')"/>
+                    <label class="btn btn-outline-secondary" for="btnradio2">Aktivie</label>
+                    <input type="radio" name="btnradio" class="btn-check" id="btnradio3" autocomplete="off" onclick="setFilter('completed')"/>
+                    <label class="btn btn-outline-secondary" for="btnradio3">Pabeigtie</label>
+                  </div>
                 </div>
                 <ul id="task-list" class="list-group"></ul>
+                <div class="d-flex justify-content-between align-items-center">
+                  <p style="padding-top:20px;" class="text-secondary">Atlikusi <span id="count">0</span> darbi</p>
+                  <button type="submit" class="btnnotirit" onclick="notiritpabeigtos()">Notirit pabeigtos</button>
+                </div>
             </div>
         </div>
         <script>
@@ -58,6 +78,9 @@ Izmantotais compiler: visual-studio
             const task = { text, completed: false, priority };
             tasks.push(task);
             input.value = "";
+            
+            count++;
+            updateCount();
         
             saveData();
             renderTasks();
@@ -67,9 +90,14 @@ Izmantotais compiler: visual-studio
             const list = document.getElementById("task-list");
             list.innerHTML = "";
         
-            const filteredTasks = tasks.filter(task => 
-                task.text.toLowerCase().includes(searchQuery)
-            );
+            const filteredTasks = tasks.filter(task => {
+                const matchesSearch = task.text.toLowerCase().includes(searchQuery);
+                if (currentFilter === "all") return matchesSearch;
+                if (currentFilter === "active") return matchesSearch && !task.completed;
+                if (currentFilter === "completed") return matchesSearch && task.completed;
+                
+                return matchesSearch;
+            });
         
             filteredTasks.forEach((task, index) => {
                 
@@ -79,14 +107,20 @@ Izmantotais compiler: visual-studio
                 const badge = document.createElement("span");
                 badge.classList.add("badge", "me-2");
                 if (task.priority === "high") badge.classList.add("bg-danger");
-                else if (task.priority === "medium") badge.classList.add("bg-warning", "text-dark");
+                else if (task.priority === "medium") badge.classList.add("bg-warning");
                 else badge.classList.add("bg-secondary");
                 badge.textContent = task.priority === "high" ? "SVARĪGI" : task.priority === "medium" ? "Vidēja" : "Zema";
         
                 const span = document.createElement("span");
                 span.textContent = task.text;
-                if (task.completed) span.classList.add("text-decoration-line-through");
+                if (task.completed) span.classList.add("text-decoration-line-through", "text-secondary");
                 span.onclick = () => {
+                    if (count>0 && !span.classList.contains("text-decoration-line-through")) {
+                      count--;
+                    } else {
+                      count++;
+                    }
+                    updateCount();
                     tasks[index].completed = !tasks[index].completed;
                     saveData();
                     renderTasks();
@@ -96,6 +130,8 @@ Izmantotais compiler: visual-studio
                 notirit.classList.add("btn", "btn-outline-danger");
                 notirit.onclick = () => {
                     tasks.splice(index, 1);
+                    count--;
+                    updateCount()
                     saveData();
                     renderTasks();
                 };
@@ -109,18 +145,41 @@ Izmantotais compiler: visual-studio
         
         function saveData() {
             localStorage.setItem("todoTasks", JSON.stringify(tasks));
+            localStorage.setItem("count", count);
         }
         
         function loadData() {
             const data = localStorage.getItem("todoTasks");
             if (data) tasks = JSON.parse(data);
             renderTasks();
+            
+            let saved = localStorage.getItem("count");
+            if (saved !== null) {
+              count = Number(saved);
+            }
+            updateCount();
         }
         
         let searchQuery = "";
         function Search() {
             searchQuery = document.getElementById("mySearch").value.toLowerCase();
             renderTasks();
+        }
+        
+        let count = 0;
+        function updateCount() {
+          document.getElementById("count").innerHTML = count;
+        }
+        
+        let currentFilter = "all"
+        function setFilter(filter) {
+            currentFilter = filter;
+            renderTasks();
+        }
+        function notiritpabeigtos() {
+          tasks = tasks.filter(task => !task.completed);
+          saveData();
+          renderTasks();
         }
         window.onload = loadData;
         </script>
