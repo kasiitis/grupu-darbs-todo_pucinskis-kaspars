@@ -32,12 +32,13 @@ Izmantotais compiler: visual-studio
                         <option value="low">Zema</option>
                         <option value="medium" selected>Vidēja</option>
                         <option value="high">Svarīgi</option>
+                        </select>
                   
                     <input class="form-control" type="text"  placeholder="Ieraksti darbu..." id="darbs">
                     <button class="btn btn-primary" type="submit" onclick="saraksts()">Pievienot</button>
                 </div>
                 <div class="input-group">
-                    <input  class="form-select" type="text" id="mySearch" onkeyup="Search()" placeholder="Meklet uzdevumu...">
+                    <input type="text" id="mySearch" onkeyup="Search()" placeholder="Meklet uzdevumu...">
                     <button type="button" class="btn btn-outline-secondary">Visi</button>
                     <button type="button" class="btn btn-outline-secondary">Aktivie</button>
                     <button type="button" class="btn btn-outline-secondary">Pabeigtie</button>
@@ -66,10 +67,15 @@ Izmantotais compiler: visual-studio
             const list = document.getElementById("task-list");
             list.innerHTML = "";
         
-            tasks.forEach((task, index) => {
+            const filteredTasks = tasks.filter(task => 
+                task.text.toLowerCase().includes(searchQuery)
+            );
+        
+            filteredTasks.forEach((task, index) => {
+                
                 const li = document.createElement("li");
                 li.classList.add("d-flex", "justify-content-between", "align-items-center", "list-group-item");
-        
+                
                 const badge = document.createElement("span");
                 badge.classList.add("badge", "me-2");
                 if (task.priority === "high") badge.classList.add("bg-danger");
@@ -80,13 +86,11 @@ Izmantotais compiler: visual-studio
                 const span = document.createElement("span");
                 span.textContent = task.text;
                 if (task.completed) span.classList.add("text-decoration-line-through");
-        
                 span.onclick = () => {
                     tasks[index].completed = !tasks[index].completed;
                     saveData();
                     renderTasks();
                 };
-        
                 const notirit = document.createElement("button");
                 notirit.innerText = "Dzēst";
                 notirit.classList.add("btn", "btn-outline-danger");
@@ -112,8 +116,11 @@ Izmantotais compiler: visual-studio
             if (data) tasks = JSON.parse(data);
             renderTasks();
         }
+        
+        let searchQuery = "";
         function Search() {
-          
+            searchQuery = document.getElementById("mySearch").value.toLowerCase();
+            renderTasks();
         }
         window.onload = loadData;
         </script>
