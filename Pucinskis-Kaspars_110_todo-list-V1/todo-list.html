@@ -17,13 +17,16 @@ Izmantotais compiler: visual-studio
                 text-align: center;
                 padding: 20px;
             }
+            .row1 {
+              padding-bottom: 10px;
+            }
         </style>
     </head>
     <body>
         <div class="container mb-3">
             <div class="card" id="card">
                 <h3>Mani darbi</h3>
-                <div class="input-group">
+                <div class="input-group row1">
                     
                         <select id="priority" class="form-select">
                         <option value="low">Zema</option>
@@ -32,6 +35,12 @@ Izmantotais compiler: visual-studio
                   
                     <input class="form-control" type="text"  placeholder="Ieraksti darbu..." id="darbs">
                     <button class="btn btn-primary" type="submit" onclick="saraksts()">Pievienot</button>
+                </div>
+                <div class="input-group">
+                    <input  class="form-select" type="text" id="mySearch" onkeyup="Search()" placeholder="Meklet uzdevumu...">
+                    <button type="button" class="btn btn-outline-secondary">Visi</button>
+                    <button type="button" class="btn btn-outline-secondary">Aktivie</button>
+                    <button type="button" class="btn btn-outline-secondary">Pabeigtie</button>
                 </div>
                 <ul id="task-list" class="list-group"></ul>
             </div>
@@ -80,7 +89,7 @@ Izmantotais compiler: visual-studio
         
                 const notirit = document.createElement("button");
                 notirit.innerText = "Dzēst";
-                notirit.classList.add("btn", "btn-danger");
+                notirit.classList.add("btn", "btn-outline-danger");
                 notirit.onclick = () => {
                     tasks.splice(index, 1);
                     saveData();
@@ -103,7 +112,9 @@ Izmantotais compiler: visual-studio
             if (data) tasks = JSON.parse(data);
             renderTasks();
         }
-        
+        function Search() {
+          
+        }
         window.onload = loadData;
         </script>
     </body>
