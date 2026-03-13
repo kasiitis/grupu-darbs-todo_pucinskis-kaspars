@@ -125,9 +125,16 @@ Izmantotais compiler: visual-studio
                     saveData();
                     renderTasks();
                 };
+                
+                const labot = document.createElement("button");
+                labot.innerText = "Labot";
+                labot.classList.add("btn","btn-outline-info");
+                labot.onclick = () => {
+                  samainitdatus(li, badge, span, konteineris, index);
+                }
                 const notirit = document.createElement("button");
                 notirit.innerText = "Dzēst";
-                notirit.classList.add("btn", "btn-outline-danger");
+                notirit.classList.add("btn","btn-outline-danger");
                 notirit.onclick = () => {
                     tasks.splice(index, 1);
                     count--;
@@ -135,10 +142,14 @@ Izmantotais compiler: visual-studio
                     saveData();
                     renderTasks();
                 };
+                const konteineris = document.createElement("div");
+                konteineris.classList.add("btn-group");
+                konteineris.appendChild(labot);
+                konteineris.appendChild(notirit);
         
                 li.appendChild(badge);
                 li.appendChild(span);
-                li.appendChild(notirit);
+                li.appendChild(konteineris);
                 list.appendChild(li);
             });
         }
@@ -180,6 +191,27 @@ Izmantotais compiler: visual-studio
           tasks = tasks.filter(task => !task.completed);
           saveData();
           renderTasks();
+        }
+        function samainitdatus(li, badge, span, konteineris, index) {
+          li.removeChild(badge);
+          li.removeChild(span);
+          li.removeChild(konteineris);
+          const teksts = document.createElement("input");
+          teksts.value = tasks[index].text;
+          teksts.classList.add("form-control","me-2");
+          const saglabat = document.createElement("button");
+          saglabat.innerText = "Saglabat";
+          saglabat.classList.add("btn","btn-success");
+          saglabat.onclick = () => {
+            const teksts2 = teksts.value.trim();
+            if (!teksts2) return;
+        
+            tasks[index].text = teksts2;
+            saveData();
+            renderTasks();
+          }
+          li.appendChild(teksts);
+          li.appendChild(saglabat);
         }
         window.onload = loadData;
         </script>
